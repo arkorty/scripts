@@ -8,29 +8,39 @@
 #
 # Copyright (C) 2023 Arkaprabha Chakraborty
 
+
+# Setting the program name used for notifications
 PROG=dunstify
 
-# icon paths
-ICON_DIR=/usr/share/icons/<ICON_PACK>
+# Directory where icons are located (replace ICON_PACK with the actual icon pack)
+ICON_DIR=/usr/share/icons/ICON_PACK
+
+# Icon paths for different battery statuses
 BATTERY_FULL=$ICON_DIR/48x48/status/battery-full.svg
 BATTERY_LOW=$ICON_DIR/48x48/status/battery-low.svg
 BATTERY_CAUTION=$ICON_DIR/48x48/status/battery-caution.svg
 AC_ADAPTER=$ICON_DIR/48x48/status/ac-adapter.svg
 
-# capacity checkpoints
+# Thresholds for battery status
 LOW=20
 CRITICAL=10
 
-# status flags
+# Initialize variables to track previous status and capacity
 last_capacity=NONE
 last_status=None
 
+# Continuously monitor the battery status
 while true; do
-  BATTERY="/sys/class/power_supply/CMB0"
+  # Path to battery information (replace BATTERY with the actual battery)
+  BATTERY="/sys/class/power_supply/BATTERY"
+
+  # Check if the battery path exists
   if [ -d $BATTERY ]; then
+    # Read battery capacity and status
     capacity=$(cat $BATTERY/capacity)
     status=$(cat $BATTERY/status)
 
+    # Handling status changes for charging/discharging
     if [ $last_status = "None" ]; then
       last_status=$status
     elif [ $last_status != "Discharging" ] && [ $status = "Discharging" ]; then
@@ -41,6 +51,7 @@ while true; do
       last_status=$status
     fi
 
+    # Handling different battery capacity scenarios
     if [ $last_capacity != "FULL" ] && [ $status = "Full" ]; then
       $PROG "Battery Full" --replace 666 --icon $BATTERY_FULL
       last_capacity="FULL"
@@ -53,5 +64,7 @@ while true; do
       last_capacity=CRITICAL
     fi
   fi
+  # Wait for 2 seconds before checking battery status again
   sleep 2
 done
+

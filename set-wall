@@ -5,15 +5,29 @@
 # Author:       Arkaprabha Chakraborty
 # Created:      28-07-23
 # Dependencies: feh, dunstify
-#
 # Copyright (C) 2023 Arkaprabha Chakraborty
 
-PROG=feh           # program
-NOTIPROG=dunstify  # program
-FLAGS=--bg-fill    # program flags
-WALL=$1            # original image
-REST=$HOME/.wall   # duplicate image
+# Define the programs used in the script
+PROG=feh              # Program for setting the wallpaper
+NOTI=dunstify         # Program for displaying notifications
 
-cp "$WALL" "$REST"     # make a copy
-"$PROG" "$FLAGS" "$REST" # set background
-"$NOTIPROG" "Set as background" -a "$PROG" -u "low" -t "2000" -I "$WALL"
+# Feh options to fill the background
+FLAG='--bg-fill'
+
+# Check if the input argument (wallpaper file) is provided
+if [ -z "$1" ]; then
+    echo "Usage: $0 <wallpaper_file>"
+    exit 1
+fi
+
+WALL=$1               # Wallpaper file passed as an argument
+REST=$HOME/.wall      # Destination to store the wallpaper copy
+
+# Copy the wallpaper to the designated location
+cp "$WALL" "$REST"
+
+# Set the wallpaper using feh
+$PROG $FLAG "$REST"
+
+# Display a notification confirming the wallpaper change
+$NOTI "Set as background" -a $PROG -u "low" -t "2000" -I "$WALL"

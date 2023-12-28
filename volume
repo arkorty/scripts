@@ -8,62 +8,91 @@
 #
 # Copyright (C) 2023 Arkaprabha Chakraborty
 
-# icon paths
-ICON_DIR=/usr/share/icons/<ICON_PACK>
+# Directory paths for icons
+ICON_DIR=/usr/share/icons/ICON_PACK
 VOLUME_MUTED=$ICON_DIR/48x48/status/notification-audio-volume-muted.svg
 VOLUME_UNMUTED=$ICON_DIR/48x48/status/notification-audio-volume-high.svg
 AUDIO_SPEAKER=$ICON_DIR/48x48/devices/audio-speakers.svg
 
-# semicolon separated volume rule for multiple sinks
+# Rules for sink and volume
 RULE="<sink> <volume>;<sink> <volume>;<sink> <volume>"
+MAX=100
+STEP=5
 
-MAX=100 # default max volume
-STEP=5 # volume change step
+# Function to retrieve the current sink volume
+get_current_sink_volume() {
+  current_sink=$(pactl get-default-sink)
+  rule=""
 
-shopt -s lastpipe # run last pipe-element in the shell process
-# set max volume for default sink
-echo -e $RULE | tr ';' '\n' | while read rule; do
-  if [ $(pactl get-default-sink) = $(echo $rule | awk '{ print $1 }') ]; then
-    MAX=$(echo $rule | awk '{ print $2 }')
-  fi
-done
+  # Iterates through rules to find the current sink and its associated maximum volume
+  shopt -s lastpipe
+  echo -e $RULE | tr ';' '\n' | while read rule; do
+    if [ $current_sink = $(echo $rule | awk '{ print $1 }') ]; then
+      MAX=$(echo $rule | awk '{ print $2 }')
+    fi
+  done
+}
 
-case $1 in # pattern match option
--i)
-  pamixer -u # unmute if muted
+# Function to increase volume
+increase_volume() {
+  pamixer -u
+  volume=$(pamixer --get-volume)
 
-  # set max volume if intended increase step exceeds max volume
-  if [ $(pamixer --get-volume) -ge $MAX ]; then
+  # Adjusts the volume level based on the defined rules
+  if [ $volume -ge $MAX ]; then
     pamixer --allow-boost --set-volume $MAX
-  elif [ $(pamixer --get-volume) -le $MAX ] && [ $(pamixer --get-volume) -ge $((MAX - STEP)) ]; then
+  elif [ $volume -le $MAX ] && [ $volume -ge $((MAX - STEP)) ]; then
     pamixer --allow-boost --set-volume $MAX
   else
-    pamixer -i $STEP --allow-boost # increase volume
+    pamixer -i $STEP --allow-boost
   fi
-  volume=$(pamixer --get-volume) # get current volume
 
-  # send notification with current volume
-  dunstify -a "volume" -u low -r "9993" -h int:value:"$volume" "Volume: ${volume}%" -t 2000 -i $AUDIO_SPEAKER
-  ;;
--d)
-  pamixer -u                     # unmute if muted
-  pamixer -d $STEP --allow-boost # decrease volume
+  volume=$(pamixer --get-volume)
+  display_notification $volume
+}
+
+# Function to decrease volume
+decrease_volume() {
+  pamixer -u
+  pamixer -d $STEP --allow-boost
 
   if [ $(pamixer --get-volume) -ge $MAX ]; then
     pamixer --allow-boost --set-volume $MAX
   fi
 
-  volume=$(pamixer --get-volume) # get current volume
+  volume=$(pamixer --get-volume)
+  display_notification $volume
+}
 
-  # send notification with current volume
-  dunstify -a "volume" -u low -r "9993" -h int:value:"$volume" "Volume: ${volume}%" -t 2000 -i $AUDIO_SPEAKER
-  ;;
--m)
-  pamixer -t                     # toggle mute
-  if $(pamixer --get-mute); then # send notification with mute status
-    dunstify -a "volume" -t 2000 -r 9993 -u low "Muted" -i $VOLUME_MUTED
+# Function to toggle mute
+toggle_mute() {
+  pamixer -t
+  muted=$(pamixer --get-mute)
+
+  if $muted; then
+    display_notification "Muted" $VOLUME_MUTED
   else
-    dunstify -a "volume" -t 2000 -r 9993 -u low "Unmuted" -i $VOLUME_UNMUTED
+    display_notification "Unmuted" $VOLUME_UNMUTED
   fi
-  ;;
+}
+
+# Function to display notification
+display_notification() {
+  volume=$1
+  icon=$AUDIO_SPEAKER
+  if [ $2 ]; then
+    icon=$2
+  fi
+
+  dunstify -a volume -u low -r 9993 -h int:value:$volume "Volume: ${volume}%" -t 2000 -i $icon
+}
+
+# Retrieves current sink volume settings
+get_current_sink_volume
+
+# Handles the provided command-line argument
+case $1 in
+  -i) increase_volume ;;
+  -d) decrease_volume ;;
+  -m) toggle_mute ;;
 esac

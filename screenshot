@@ -8,11 +8,27 @@
 #
 # Copyright (C) 2023 Arkaprabha Chakraborty
 
-PROG=maim
-NOTIPROG=dunstify
+# Define the program used for taking screenshots
+SCREENSHOT_TOOL=maim
+# Define the program used for notifications
+NOTIFICATION_TOOL=dunstify
 
-timestamp=$(date +%F-%T)
-$PROG -u -s "$HOME/Pictures/Screenshots/$timestamp-screenshot.png"
+# Generate a timestamp for the screenshot filename
+TIMESTAMP=$(date +%F-%T)
 
-$NOTIPROG "Captured" -a "maim" -u "low" -t "2000" -I "$HOME/Pictures/\
-Screenshots/$timestamp-screenshot.png"
+# Define the directory to store screenshots
+SCREENSHOT_DIR="$HOME/Pictures/Screenshots/"
+# Define the screenshot filename with a timestamp
+SCREENSHOT_FILE="$SCREENSHOT_DIR$TIMESTAMP-screenshot.png"
+
+# Capture a screenshot of the selected area and save it with the timestamp in the Pictures/Screenshots directory
+if $SCREENSHOT_TOOL -u -s "$SCREENSHOT_FILE"; then
+    # If successful, display a notification indicating that a screenshot has been captured
+    if $NOTIFICATION_TOOL "Captured" -a "maim" -u "low" -t "2000" -I "$SCREENSHOT_FILE"; then
+        echo "Screenshot captured and notification displayed."
+    else
+        echo "Failed to display notification."
+    fi
+else
+    echo "Failed to capture screenshot."
+fi

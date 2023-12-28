@@ -1,0 +1,42 @@
+#!/usr/bin/sh
+
+# Script:       discord-dl
+# License:      MIT
+# Author:       Arkaprabha Chakraborty
+# Created:      26-02-23
+# Dependencies: curl, tar
+#
+# Copyright (C) 2023 Arkaprabha Chakraborty
+
+# URLs and paths
+DOWNLOAD_URL="https://discord.com/api/download?platform=linux&format=tar.gz"
+INSTALL_DIR="/opt"
+INSTALL_PATH="/bin/discord"
+TEMP_FILE="Discord.tar.gz"
+TEMP_DIR="Discord"
+
+# Remove existing Discord installation
+if [ -d "$INSTALL_DIR/Discord" ]; then
+  sudo rm -rf "$INSTALL_DIR/Discord"
+fi
+
+if [ -L "$INSTALL_PATH" ]; then
+  sudo rm -f "$INSTALL_PATH"
+fi
+
+# Download and install Discord
+if curl -Lfo "$TEMP_FILE" "$DOWNLOAD_URL"; then
+  if tar xzvf "$TEMP_FILE"; then
+    sudo mv "$TEMP_DIR" "$INSTALL_DIR"
+    sudo ln -s "$INSTALL_DIR/$TEMP_DIR/Discord" "$INSTALL_PATH"
+    rm "$TEMP_FILE"
+    echo "Discord updated successfully!"
+  else
+    echo "Error: Failed to extract the downloaded file."
+    rm "$TEMP_FILE"
+    exit 1
+  fi
+else
+  echo "Error: Failed to download Discord package."
+  exit 1
+fi
