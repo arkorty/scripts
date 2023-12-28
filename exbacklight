@@ -16,7 +16,7 @@ ICON_BRIGHTNESS=$ICON_DIR/48x48/apps/display-brightness.svg
 # Program to control display settings
 PROG=ddcutil
 # Command flag to set the VCP (Virtual Control Panel) for brightness
-FLAG='--brief --display 1 setvcp 10'
+FLAG='--brief --display 1'
 # Notification command
 NOTI=dunstify
 
@@ -26,9 +26,10 @@ BRIGHTNESS=$(dialog --inputbox "Enter the brightness to be set [1-100]:" 0 44 3>
 # Check if the entered brightness is within the valid range (1-100)
 if [ $BRIGHTNESS -ge 1 ] && [ $BRIGHTNESS -le 100 ]; then
   # Run ddcutil to set the brightness in the background
-  setsid -f $PROG $FLAG $BRIGHTNESS &
-
+  $PROG $FLAG setvcp 10 $BRIGHTNESS
+ 
   # Send a notification using dunstify about the brightness change
+  BRIGHTNESS=$($PROG $FLAG getvcp 10 | awk '{ print $4 }')
   $NOTI -a "exbacklight" -u low -r "9997" -h int:value:"$BRIGHTNESS" -i \
   $ICON_BRIGHTNESS "Brightness: ${BRIGHTNESS}%" -t 2000
 fi
