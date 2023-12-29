@@ -92,7 +92,7 @@ get_current_sink_volume
 
 # Handles the provided command-line argument
 case $1 in
-  -i) increase_volume ;;
-  -d) decrease_volume ;;
-  -m) toggle_mute ;;
+-i) increase_volume ;;
+-d) decrease_volume ;;
+-m) toggle_mute ;;
 esac

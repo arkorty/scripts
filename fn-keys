@@ -1,6 +1,6 @@
 #!/usr/bin/sh
 
-sudo touch /etc/modprobe.d/hid_apple.conf                                   # create conf file
-sudo echo "options hid_apple fnmode=2" >> /etc/modprobe.d/hid_apple.conf    # append options to the config file
-sudo update-initramfs -u                                                    # loads changes
-echo "\nPlease reboot to apply changes\n"                                   # echos reboot message
+sudo touch /etc/modprobe.d/hid_apple.conf                               # create conf file
+sudo echo "options hid_apple fnmode=2" >>/etc/modprobe.d/hid_apple.conf # append options to the config file
+sudo update-initramfs -u                                                # loads changes
+echo "\nPlease reboot to apply changes\n"                               # echos reboot message

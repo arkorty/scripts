@@ -8,7 +8,6 @@
 #
 # Copyright (C) 2023 Arkaprabha Chakraborty
 
-
 # Setting the program name used for notifications
 PROG=dunstify
 
@@ -67,4 +66,3 @@ while true; do
   # Wait for 2 seconds before checking battery status again
   sleep 2
 done
-

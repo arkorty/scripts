@@ -31,5 +31,5 @@ if [ $BRIGHTNESS -ge 1 ] && [ $BRIGHTNESS -le 100 ]; then
   # Send a notification using dunstify about the brightness change
   BRIGHTNESS=$($PROG $FLAG getvcp 10 | awk '{ print $4 }')
   $NOTI -a "exbacklight" -u low -r "9997" -h int:value:"$BRIGHTNESS" -i \
-  $ICON_BRIGHTNESS "Brightness: ${BRIGHTNESS}%" -t 2000
+    $ICON_BRIGHTNESS "Brightness: ${BRIGHTNESS}%" -t 2000
 fi

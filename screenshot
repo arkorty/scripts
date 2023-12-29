@@ -23,12 +23,12 @@ SCREENSHOT_FILE="$SCREENSHOT_DIR$TIMESTAMP-screenshot.png"
 
 # Capture a screenshot of the selected area and save it with the timestamp in the Pictures/Screenshots directory
 if $SCREENSHOT_TOOL -u -s "$SCREENSHOT_FILE"; then
-    # If successful, display a notification indicating that a screenshot has been captured
-    if $NOTIFICATION_TOOL "Captured" -a "maim" -u "low" -t "2000" -I "$SCREENSHOT_FILE"; then
-        echo "Screenshot captured and notification displayed."
-    else
-        echo "Failed to display notification."
-    fi
+  # If successful, display a notification indicating that a screenshot has been captured
+  if $NOTIFICATION_TOOL "Captured" -a "maim" -u "low" -t "2000" -I "$SCREENSHOT_FILE"; then
+    echo "Screenshot captured and notification displayed."
+  else
+    echo "Failed to display notification."
+  fi
 else
-    echo "Failed to capture screenshot."
+  echo "Failed to capture screenshot."
 fi

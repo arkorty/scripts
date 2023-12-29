@@ -8,20 +8,20 @@
 # Copyright (C) 2023 Arkaprabha Chakraborty
 
 # Define the programs used in the script
-PROG=feh              # Program for setting the wallpaper
-NOTI=dunstify         # Program for displaying notifications
+PROG=feh      # Program for setting the wallpaper
+NOTI=dunstify # Program for displaying notifications
 
 # Feh options to fill the background
 FLAG='--bg-fill'
 
 # Check if the input argument (wallpaper file) is provided
 if [ -z "$1" ]; then
-    echo "Usage: $0 <wallpaper_file>"
-    exit 1
+  echo "Usage: $0 <wallpaper_file>"
+  exit 1
 fi
 
-WALL=$1               # Wallpaper file passed as an argument
-REST=$HOME/.wall      # Destination to store the wallpaper copy
+WALL=$1          # Wallpaper file passed as an argument
+REST=$HOME/.wall # Destination to store the wallpaper copy
 
 # Copy the wallpaper to the designated location
 cp "$WALL" "$REST"
