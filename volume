@@ -8,7 +8,7 @@
 #
 # Copyright (C) 2023 Arkaprabha Chakraborty
 
-# Directory paths for icons
+# Directory where icons are located (replace ICON_PACK with the actual icon pack)
 ICON_DIR=/usr/share/icons/ICON_PACK
 VOLUME_MUTED=$ICON_DIR/48x48/status/notification-audio-volume-muted.svg
 VOLUME_UNMUTED=$ICON_DIR/48x48/status/notification-audio-volume-high.svg
@@ -78,13 +78,14 @@ toggle_mute() {
 
 # Function to display notification
 display_notification() {
-  volume=$1
+  volume="$1%"
   icon=$AUDIO_SPEAKER
   if [ $2 ]; then
+    volume=$1
     icon=$2
   fi
 
-  dunstify -a volume -u low -r 9993 -h int:value:$volume "Volume: ${volume}%" -t 2000 -i $icon
+  dunstify -a volume -u low -r 9993 -h int:value:$volume "Volume: ${volume}" -t 2000 -i $icon
 }
 
 # Retrieves current sink volume settings

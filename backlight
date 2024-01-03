@@ -4,43 +4,69 @@
 # License:      MIT
 # Author:       Arkaprabha Chakraborty
 # Created:      02-10-23
-# Dependencies: acpilight, dunstify
+# Dependencies: acpilight, ddcutil, dialog, dunstify
 #
 # Copyright (C) 2023 Arkaprabha Chakraborty
 
 # Directory where the icon for brightness is located (replace ICON_PACK with the actual icon pack)
 ICON_DIR=/usr/share/icons/ICON_PACK
 # Path to the brightness icon
-BRIGHTNESS=$ICON_DIR/48x48/apps/display-brightness.svg
+ICON_BRIGHTNESS=$ICON_DIR/48x48/apps/display-brightness.svg
 
-# Program to control display brightness
-PROG=xbacklight
-# Notification program
-NOTI=dunstify
-
-# Case statement to determine the action based on the argument passed to the script
 case $1 in
--i)
-  # Increase brightness by 10 or set to 10 if less than 10
-  if [ $($PROG -getf | awk '{print substr($1, 1, length($1)-2)}') -ge 10 ]; then
-    $PROG -inc 10
-  else
-    $PROG -set 10
-  fi
+--int)
+  # Program to control display brightness
+  PROG=xbacklight
+  # Notification program
+  NOTI=dunstify
+  
+  # Case statement to determine the action based on the argument passed to the script
+  case $2 in
+  --inc)
+    # Increase brightness by 10 or set to 10 if less than 10
+    if [ $($PROG -getf | awk '{print substr($1, 1, length($1)-2)}') -ge 10 ]; then
+      $PROG -inc 10
+    else
+      $PROG -set 10
+    fi
+    ;;
+  --dec)
+    # Decrease brightness by 10 based on current brightness level
+    if [ $($PROG -getf | awk '{print substr($1, 1, length($1)-2)}') -le 10 ]; then
+      $PROG -set 1
+    elif [ $($PROG -getf | awk '{print substr($1, 1, length($1)-2)}') -le 20 ]; then
+      $PROG -set 10
+    else
+      $PROG -dec 10
+    fi
+    ;;
+  esac
+  
+  # Retrieve the current brightness value
+  brightness=$($PROG -getf | awk '{print substr($1, 1, length($1)-2)}')
+  # Send a notification displaying the current brightness level
+  $NOTI -a "backlight" -u low -r "9997" -h int:value:"$brightness" -i $ICON_BRIGHTNESS "Brightness: ${brightness}%" -t 2000
   ;;
--d)
-  # Decrease brightness by 10 based on current brightness level
-  if [ $($PROG -getf | awk '{print substr($1, 1, length($1)-2)}') -le 10 ]; then
-    $PROG -set 1
-  elif [ $($PROG -getf | awk '{print substr($1, 1, length($1)-2)}') -le 20 ]; then
-    $PROG -set 10
-  else
-    $PROG -dec 10
+--ext)
+  # Program to control display settings
+  PROG=ddcutil
+  # Command flag to set the VCP (Virtual Control Panel) for brightness
+  FLAG='--brief --display 1'
+  # Notification command
+  NOTI=dunstify
+  
+  # Prompt user for the desired brightness level
+  brightness=$(dialog --inputbox "Enter the brightness to be set [1-100]:" 0 44 3>&1 1>&2 2>&3 3>&-)
+  
+  # Check if the entered brightness is within the valid range (1-100)
+  if [ $brightness -ge 1 ] && [ $brightness -le 100 ]; then
+    # Run ddcutil to set the brightness in the background
+    $PROG $FLAG setvcp 10 $brightness
+   
+    # Send a notification using dunstify about the brightness change
+    brightness=$($PROG $FLAG getvcp 10 | awk '{ print $4 }')
+    $NOTI -a "exbacklight" -u low -r "9997" -h int:value:"$brightness" -i \
+      $ICON_BRIGHTNESS "Brightness: ${brightness}%" -t 2000
   fi
   ;;
 esac
-
-# Retrieve the current brightness value
-brightness=$($PROG -getf | awk '{print substr($1, 1, length($1)-2)}')
-# Send a notification displaying the current brightness level
-$NOTI -a "backlight" -u low -r "9997" -h int:value:"$brightness" -i $BRIGHTNESS "Brightness: ${brightness}%" -t 2000
