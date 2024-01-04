@@ -9,20 +9,20 @@
 # Copyright (C) 2023 Arkaprabha Chakraborty
 
 # Directory where icons are located (replace ICON_PACK with the actual icon pack)
-ICON_DIR=/usr/share/icons/ICON_PACK
-VOLUME_MUTED=$ICON_DIR/48x48/status/notification-audio-volume-muted.svg
-VOLUME_UNMUTED=$ICON_DIR/48x48/status/notification-audio-volume-high.svg
-AUDIO_SPEAKER=$ICON_DIR/48x48/devices/audio-speakers.svg
+ICON_DIR='/usr/share/icons/ICON_PACK'
+VOLUME_MUTED="$ICON_DIR/48x48/status/notification-audio-volume-muted.svg"
+VOLUME_UNMUTED="$ICON_DIR/48x48/status/notification-audio-volume-high.svg"
+AUDIO_SPEAKER="$ICON_DIR/48x48/devices/audio-speakers.svg"
 
 # Rules for sink and volume
-RULE="<sink> <volume>;<sink> <volume>;<sink> <volume>"
+RULE='<sink> <volume>;<sink> <volume>;<sink> <volume>'
 MAX=100
 STEP=5
 
 # Function to retrieve the current sink volume
 get_current_sink_volume() {
   current_sink=$(pactl get-default-sink)
-  rule=""
+  rule=''
 
   # Iterates through rules to find the current sink and its associated maximum volume
   shopt -s lastpipe
@@ -70,9 +70,9 @@ toggle_mute() {
   muted=$(pamixer --get-mute)
 
   if $muted; then
-    display_notification "Muted" $VOLUME_MUTED
+    display_notification 'Muted' $VOLUME_MUTED
   else
-    display_notification "Unmuted" $VOLUME_UNMUTED
+    display_notification 'Unmuted' $VOLUME_UNMUTED
   fi
 }
 
