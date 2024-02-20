@@ -4,12 +4,10 @@
 # License:      MIT
 # Author:       Arkaprabha Chakraborty
 # Created:      27-09-23
-# Dependencies: maim, dunstify
+# Dependencies: slurp, grim, maim, dunstify
 #
 # Copyright (C) 2023 Arkaprabha Chakraborty
 
-# Define the program used for taking screenshots
-SCREENSHOT_TOOL=maim
 # Define the program used for notifications
 NOTIFICATION_TOOL=dunstify
 
@@ -21,10 +19,25 @@ SCREENSHOT_DIR="$HOME/Pictures/Screenshots/"
 # Define the screenshot filename with a timestamp
 SCREENSHOT_FILE="$SCREENSHOT_DIR$TIMESTAMP-screenshot.png"
 
-# Capture a screenshot of the selected area and save it with the timestamp in the Pictures/Screenshots directory
-if $SCREENSHOT_TOOL -u -s "$SCREENSHOT_FILE"; then
+case $1 in
+--wayland)
+  # Define the program used for taking screenshots
+  SELECTION_TOOL='slurp'
+  SCREENSHOT_TOOL='grim'
+  # Capture a screenshot of the selected area and save it with the timestamp in the Pictures/Screenshots directory
+  $SCREENSHOT_TOOL -g "$($SELECTION_TOOL -d)" "$SCREENSHOT_FILE"
+  ;;
+--x11)
+  # Define the program used for taking screenshots
+  SCREENSHOT_TOOL='maim'
+  # Capture a screenshot of the selected area and save it with the timestamp in the Pictures/Screenshots directory
+  $SCREENSHOT_TOOL -u -s "$SCREENSHOT_FILE"
+  ;;
+esac
+
+if [ -e "$SCREENSHOT_FILE" ]; then
   # If successful, display a notification indicating that a screenshot has been captured
-  if $NOTIFICATION_TOOL "Captured" -a "maim" -u "low" -t "2000" -I "$SCREENSHOT_FILE"; then
+  if $NOTIFICATION_TOOL "Captured" -a "screenshot" -u "low" -t "2000" -I "$SCREENSHOT_FILE"; then
     echo "Screenshot captured and notification displayed."
   else
     echo "Failed to display notification."
