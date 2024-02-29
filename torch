@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# Script:       torch
+# License:      MIT
+# Author:       Arkaprabha Chakraborty
+# Created:      29-02-24
+# Dependencies: ddcutil
+#
+# Copyright (C) 2024 Arkaprabha Chakraborty
+
+# External display settings interface 
+PROG=ddcutil
+
+# Interface flags to control brightness via the VCP (Virtual Control Panel)
+FLAGS='--brief --display 1 setvcp 10'
+
+# Set the brightness
+$PROG $FLAGS $1
