@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# Script:       select-sink
+# License:      MIT
+# Author:       Arkaprabha Chakraborty
+# Created:      02-03-24
+# Dependencies: pactl, rofi
+#
+# Copyright (C) 2024 Arkaprabha Chakraborty
+
+# Program to control the audio settings
+PROG=pactl
+
+# Program to display/select the audio sink
+MENU=rofi
+
+# Fetch a list of all available sinks using pactl, extract sink names using cut
+all_sinks=$($PROG list short sinks | cut -f 2)
+
+# Retrieve the name of the default sink by grepping 'Default Sink' in pactl info and extracting with cut
+default_sink=$($PROG info | grep 'Default Sink' | cut -d : -f 2)
+
+# Find the line number of the default sink in the list of all sinks
+active_sink=$(echo "$all_sinks" | grep -n $default_sink | cut -d : -f 1)
+
+# Use MENU to display a menu with the list of sinks, preselect the active sink, and prompt the user to choose a device
+selected_sink=$(echo "$all_sinks" | $MENU -dmenu -i -a $(($active_sink - 1)) -p 'Select an audio sink')
+
+# Set the selected sink as the default using pactl
+$PROG set-default-sink $selected_sink
